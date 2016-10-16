@@ -7,12 +7,12 @@
 //
 
 import UIKit
-
-class DetailViewController: UIViewController {
-
+import iTunesSearch
+class DetailViewController: UIViewController,LyricsSearchManagerProtocol {
+    
     @IBOutlet weak var detailDescriptionLabel: UILabel!
-
-
+    
+    
     func configureView() {
         // Update the user interface for the detail item.
         if let detail = self.detailItem {
@@ -21,25 +21,43 @@ class DetailViewController: UIViewController {
             }
         }
     }
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         self.configureView()
     }
-
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-
-    var detailItem: NSDate? {
+    
+    var detailItem: String? {
         didSet {
             // Update the view.
             self.configureView()
         }
     }
-
-
+    
+    func fetchLyrics()
+    {
+        let lyrics = LyricsSearchManager()
+        lyrics.delegate = self
+        let task = lyrics.fetchLyricsForTrack()
+    }
+    
+    
+    func lyricsFound(lyrics:String)
+    {
+        print(lyrics)
+        self.detailDescriptionLabel.text = lyrics
+    }
+    func lyricsError(error:Error)
+    {
+        
+    }
+    
+    
 }
 

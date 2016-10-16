@@ -8,9 +8,16 @@
 
 import UIKit
 import Kanna
+
+public protocol LyricsSearchManagerProtocol
+{
+    func lyricsFound(lyrics:String)
+    func lyricsError(error:Error)
+}
+
 public class LyricsSearchManager: NSObject {
     
-    
+    public var delegate:LyricsSearchManagerProtocol!
     public func fetchLyricsForTrack() -> URLSessionDataTask
     {
         //try to find a different api for the lyrics
@@ -61,14 +68,18 @@ public class LyricsSearchManager: NSObject {
                     {
                         
                         let nodes = document.xpath("//div[contains(@class, 'lyricbox')]")
-                        var  lyricsString = nodes.first?.text!
-                        print(lyricsString)
+                        /*
+                         var  lyricsString = nodes.first?.text!
+                         //for some reason the above block is giving text with escape chars
+                         */
                         
-                        //for some reason the above block is giving text with escape chars
-                        
-                        for element in document.xpath("//div[contains(@class, 'lyricbox')]") {
-                            lyricsString = element.text!
+                        for element in nodes {
+                            let lyricsString = element.text!
+                            print("==================================================================================================================================================================================================")
+                            print(lyricsString)
+                            self.delegate.lyricsFound(lyrics: lyricsString)
                         }
+                        
                         
                     }
                 }
@@ -86,6 +97,7 @@ public class LyricsSearchManager: NSObject {
             
         } catch let error {
             print(error.localizedDescription)
+            self.delegate.lyricsError(error: error)
         }
         
         

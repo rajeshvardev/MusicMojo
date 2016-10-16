@@ -8,7 +8,7 @@
 
 import UIKit
 
-public protocol ItunesSearchManagerDelegate {
+public protocol ItunesSearchManagerProtocol {
     func getSongsWhenDataTaskCompleted(songs:[Song])
     func getSongDataTaskError(error:NSError)
 }
@@ -16,7 +16,7 @@ public protocol ItunesSearchManagerDelegate {
 
 public class ItunesSearchManager: NSObject {
     
-    public  var delegate: ItunesSearchManagerDelegate!
+    public  var delegate: ItunesSearchManagerProtocol!
     
     var count:Int=0
     

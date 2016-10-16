@@ -8,6 +8,10 @@
 
 import Foundation
 
+
+
+
+
 public class Song:NSObject
 {
     public var wrapperType:String!     // track,
