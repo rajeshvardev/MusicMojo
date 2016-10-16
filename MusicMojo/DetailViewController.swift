@@ -9,19 +9,24 @@
 import UIKit
 import iTunesSearch
 class DetailViewController: UIViewController,LyricsSearchManagerProtocol {
-    
+     // MARK: - Properties
     @IBOutlet weak var detailDescriptionLabel: UILabel!
+    var lyrics:String = ""
     
     
+     // MARK: - CofigureView
     func configureView() {
         // Update the user interface for the detail item.
-        if let detail = self.detailItem {
+        DispatchQueue.main.async {
             if let label = self.detailDescriptionLabel {
-                label.text = detail.description
+                label.text = self.lyrics
             }
         }
+        
+        
     }
     
+     // MARK: - View Setup
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
@@ -40,18 +45,21 @@ class DetailViewController: UIViewController,LyricsSearchManagerProtocol {
         }
     }
     
-    func fetchLyrics()
+    
+     // MARK: - LyricsSearchManager
+    func fetchLyrics(artist:String,song:String)
     {
         let lyrics = LyricsSearchManager()
         lyrics.delegate = self
-        let task = lyrics.fetchLyricsForTrack()
+        let _ = lyrics.fetchLyricsForTrack(artist: artist, song: song)
     }
     
-    
+    // MARK: - LyricsSearchManagerProtocol delegate methods
     func lyricsFound(lyrics:String)
     {
         print(lyrics)
-        self.detailDescriptionLabel.text = lyrics
+        self.lyrics = lyrics
+        self.configureView()
     }
     func lyricsError(error:Error)
     {

@@ -18,15 +18,16 @@ public protocol LyricsSearchManagerProtocol
 public class LyricsSearchManager: NSObject {
     
     public var delegate:LyricsSearchManagerProtocol!
-    public func fetchLyricsForTrack() -> URLSessionDataTask
+    public func fetchLyricsForTrack(artist:String,song:String) -> URLSessionDataTask
     {
         //try to find a different api for the lyrics
         var task :URLSessionDataTask!
-        let htmlUrlString = "http://lyrics.wikia.com/api.php?func=getSong&artist=Tom+Waits&song=new+coat+of+paint&fmt=json"
-        let htmlUrl = URL(string:htmlUrlString)
+        let htmlUrlString = "http://lyrics.wikia.com/api.php"//?func=getSong&artist=Tom+Waits&song=new+coat+of+paint&fmt=json"
         
-        
-        
+        var htmlUrlComps = URLComponents(string:htmlUrlString)
+        let queryItems = [URLQueryItem(name: "func", value: "getSong"),URLQueryItem(name: "artist", value: artist),URLQueryItem(name: "song", value: song),URLQueryItem(name: "fmt", value: "json")]
+        htmlUrlComps?.queryItems = queryItems
+        let htmlUrl = htmlUrlComps?.url
         do {
             let htmlContentString = try String(contentsOf: htmlUrl!, encoding: .ascii)
             //todo

@@ -20,9 +20,10 @@ public class ItunesSearchManager: NSObject {
     
     var count:Int=0
     
-    public func fetchMusicListFromiTunes() -> URLSessionDataTask
+    public func fetchMusicListFromiTunes(param:String) -> URLSessionDataTask
     {
-        let urlString = "https://itunes.apple.com/search?term=tom+waits"
+        let searchParam = param.replacingOccurrences(of: " ", with: "+")
+        let urlString = "https://itunes.apple.com/search?term=" + searchParam
         let url = URL(string: urlString)
         var request = URLRequest(url: url!)
         request.httpMethod = "GET"

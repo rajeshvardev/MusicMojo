@@ -9,16 +9,31 @@
 import UIKit
 import iTunesSearch
 
-class MasterViewController: UITableViewController,ItunesSearchManagerProtocol {
+class MasterViewController: UITableViewController,ItunesSearchManagerProtocol,UISearchControllerDelegate ,UISearchBarDelegate{
     
+    
+    // MARK: - Constants
+    static let searchBarHeaderHeight:Int = 40
+    final let searchBarHeaderX = 10
+    
+    // MARK: - Properties
     var detailViewController: DetailViewController? = nil
     var objects = [Any]()
     var songs:[Song]! = []
+    let searchController = UISearchController(searchResultsController: nil)
+    var searchBarHeight:Int!
+    var itunesSearchManager:ItunesSearchManager!
+    
+    // MARK: - ItunesSearchManagerProtocol delegate methods
     func getSongsWhenDataTaskCompleted(songs:[Song])
     {
         print(songs)
         self.songs = songs
-        self.tableView.reloadData()
+        //moved to main queue execution
+        DispatchQueue.main.async {
+            self.tableView.reloadData()
+        }
+        
     }
     
     func getSongDataTaskError(error:NSError)
@@ -26,22 +41,63 @@ class MasterViewController: UITableViewController,ItunesSearchManagerProtocol {
         print(error.localizedDescription)
     }
     
+    
+    
+    // MARK: - Searchbar view Setup
+    func setupHeaderView(searchBarHeaderHeight:Int = searchBarHeaderHeight)
+    {
+        self.tableView.tableHeaderView = UIView(frame: CGRect(x: 0, y: 0, width: Int(searchController.searchBar.frame.width) , height: (Int(searchController.searchBar.frame.height) + searchBarHeaderHeight) ))
+        let searchLabel = UILabel(frame: CGRect(x: searchBarHeaderX, y: 0, width: Int(searchController.searchBar.frame.width), height: searchBarHeaderHeight))
+        searchLabel.text = "Search"
+        searchLabel.font = UIFont(name: "Arial-BoldMT", size: 30)
+        searchBarHeight = Int(searchController.searchBar.frame.height)
+        searchController.searchBar.frame = CGRect(x: 0, y: searchBarHeaderHeight, width: Int(searchController.searchBar.frame.width), height: Int(searchController.searchBar.frame.height))
+        //change the place holder alignment to left
+        definesPresentationContext = true
+        searchController.dimsBackgroundDuringPresentation = false
+        searchController.searchBar.placeholder = "Search Itunes Library"
+       self.tableView.tableHeaderView?.insertSubview(searchLabel, at: 0)
+        self.tableView.tableHeaderView?.insertSubview(searchController.searchBar, at: 1)
+    }
+    
+    func showHideSearchBarHeader(hide:Bool)
+    {
+        if hide
+        {
+            UIView.animate(withDuration: 0.2, animations: {
+                self.tableView.tableHeaderView?.subviews[0].frame = CGRect(x: self.searchBarHeaderX, y: 0, width: Int(self.searchController.searchBar.frame.width), height: 0)
+                self.tableView.tableHeaderView?.subviews[1].frame = CGRect(x: 0, y: 0, width: Int(self.searchController.searchBar.frame.width), height: self.searchBarHeight)
+            })
+            
+        }
+        else
+        {
+            UIView.animate(withDuration: 0.2, animations: {
+                self.tableView.tableHeaderView?.subviews[0].frame = CGRect(x: self.searchBarHeaderX, y: 0, width: Int(self.searchController.searchBar.frame.width), height: MasterViewController.searchBarHeaderHeight)
+                self.tableView.tableHeaderView?.subviews[1].frame = CGRect(x: 0, y: MasterViewController.searchBarHeaderHeight, width: Int(self.searchController.searchBar.frame.width), height: self.searchBarHeight)
+            })
+            
+
+        }
+        
+    }
+        
+        
+        
+    // MARK: - View Setup
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        self.navigationItem.leftBarButtonItem = self.editButtonItem
         
-        let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(insertNewObject(_:)))
-        self.navigationItem.rightBarButtonItem = addButton
+       
         if let split = self.splitViewController {
             let controllers = split.viewControllers
             self.detailViewController = (controllers[controllers.count-1] as! UINavigationController).topViewController as? DetailViewController
         }
-        let manager = ItunesSearchManager()
-        manager.delegate = self
-        let _ = manager.fetchMusicListFromiTunes()
-        
-        
+        setupHeaderView()
+        //self.tableView.tableHeaderView = searchController.searchBar
+        searchController.delegate = self
+        searchController.searchBar.delegate = self
         
     }
     
@@ -65,14 +121,44 @@ class MasterViewController: UITableViewController,ItunesSearchManagerProtocol {
         self.tableView.insertRows(at: [indexPath], with: .automatic)
     }
     
+    
+    
+    //MARK:-
+    
+    public func searchBarTextDidBeginEditing(_ searchBar: UISearchBar)
+    {
+        showHideSearchBarHeader(hide:true)
+        
+    }
+    
+    
+    public func searchBarTextDidEndEditing(_ searchBar: UISearchBar)
+    {
+        showHideSearchBarHeader(hide:false)
+    }
+    
+    
+    public func searchBarSearchButtonClicked(_ searchBar: UISearchBar)
+    {
+        self.itunesSearchManager = ItunesSearchManager()
+        self.itunesSearchManager.delegate = self
+        let _ = self.itunesSearchManager.fetchMusicListFromiTunes(param: searchBar.text!)
+
+    }
+    
+    public func searchBarCancelButtonClicked(_ searchBar: UISearchBar)
+    {
+        
+    }
     // MARK: - Segues
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "showDetail" {
-            if let _ = self.tableView.indexPathForSelectedRow {
+            if let indexPath = self.tableView.indexPathForSelectedRow {
                 
                 let controller = (segue.destination as! UINavigationController).topViewController as! DetailViewController
-                controller.fetchLyrics()
+                let selectedSong = songs[indexPath.row]
+                controller.fetchLyrics(artist: selectedSong.artistName, song: selectedSong.trackName)
                 controller.navigationItem.leftBarButtonItem = self.splitViewController?.displayModeButtonItem
                 controller.navigationItem.leftItemsSupplementBackButton = true
             }
@@ -86,6 +172,7 @@ class MasterViewController: UITableViewController,ItunesSearchManagerProtocol {
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        
         return songs.count
     }
     
@@ -94,12 +181,17 @@ class MasterViewController: UITableViewController,ItunesSearchManagerProtocol {
         print(indexPath.row)
         let song = songs[indexPath.row]
         let art = cell.viewWithTag(90) as! UIImageView
+         DispatchQueue.global(qos: .background).async {
         do {
-            art.image = try  UIImage(data: NSData(contentsOf: URL(string: song.artworkUrl60)!) as Data)
+            let image  = try  UIImage(data: NSData(contentsOf: URL(string: song.artworkUrl60)!) as Data)
+            DispatchQueue.main.async {
+                art.image = image
+            }
+            
         } catch  {
             print("error")
         }
-        
+        }
         let track = cell.viewWithTag(91) as! UILabel
         track.text = song.trackName
         let artist = cell.viewWithTag(92) as! UILabel
@@ -123,6 +215,7 @@ class MasterViewController: UITableViewController,ItunesSearchManagerProtocol {
         }
     }
     
+     // MARK: - Activity Indicator
     func showActivityIndicator()
     {
         let alphaView = UIView(frame: self.view.frame)
