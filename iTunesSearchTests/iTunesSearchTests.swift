@@ -9,10 +9,22 @@
 import XCTest
 @testable import iTunesSearch
 
-class iTunesSearchTests: XCTestCase {
+class iTunesSearchTests: XCTestCase,ItunesSearchManagerDelegate {
+    
+    
+    func getSongsWhenDataTaskCompleted(songs:[Song])
+    {
+        print(songs)
+    }
+    func getSongDataTaskError(error:NSError)
+    {
+        print(error.localizedDescription)
+    }
+    
     
     override func setUp() {
         super.setUp()
+        
         // Put setup code here. This method is called before the invocation of each test method in the class.
     }
     
@@ -24,6 +36,10 @@ class iTunesSearchTests: XCTestCase {
     func testExample() {
         // This is an example of a functional test case.
         // Use XCTAssert and related functions to verify your tests produce the correct results.
+        let manager = ItunesSearchManager()
+        manager.delegate = self
+        manager.fetchMusicListFromiTunes()
+        //XCTAssertEqual(manager.count, 0)
     }
     
     func testPerformanceExample() {

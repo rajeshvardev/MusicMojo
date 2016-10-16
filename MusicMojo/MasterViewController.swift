@@ -7,13 +7,25 @@
 //
 
 import UIKit
+import iTunesSearch
 
-class MasterViewController: UITableViewController {
+class MasterViewController: UITableViewController,ItunesSearchManagerDelegate {
 
     var detailViewController: DetailViewController? = nil
     var objects = [Any]()
-
-
+    var songs:[Song]! = []
+    func getSongsWhenDataTaskCompleted(songs:[Song])
+    {
+        print(songs)
+        self.songs = songs
+        self.tableView.reloadData()
+    }
+    
+    func getSongDataTaskError(error:NSError)
+    {
+        print(error.localizedDescription)
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
@@ -25,11 +37,19 @@ class MasterViewController: UITableViewController {
             let controllers = split.viewControllers
             self.detailViewController = (controllers[controllers.count-1] as! UINavigationController).topViewController as? DetailViewController
         }
+       let manager = ItunesSearchManager()
+        manager.delegate = self
+       let task = manager.fetchMusicListFromiTunes()
+        
+        let lyrics = LyricsSearchManager()
+        lyrics.fetchLyricsForTrack()
+        
     }
 
     override func viewWillAppear(_ animated: Bool) {
         self.clearsSelectionOnViewWillAppear = self.splitViewController!.isCollapsed
         super.viewWillAppear(animated)
+        showActivityIndicator()
     }
 
     override func didReceiveMemoryWarning() {
@@ -64,14 +84,26 @@ class MasterViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return objects.count
+        return songs.count
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
-
-        let object = objects[indexPath.row] as! NSDate
-        cell.textLabel!.text = object.description
+        print(indexPath.row)
+        let song = songs[indexPath.row]
+        let art = cell.viewWithTag(90) as! UIImageView
+        do {
+            art.image = try  UIImage(data: NSData(contentsOf: URL(string: song.artworkUrl60)!) as Data)
+        } catch  {
+            print("error")
+        }
+        
+        let track = cell.viewWithTag(91) as! UILabel
+        track.text = song.trackName
+        let artist = cell.viewWithTag(92) as! UILabel
+        artist.text = song.artistName
+        let album = cell.viewWithTag(93) as! UILabel
+        album.text = song.collectionName
         return cell
     }
 
@@ -87,6 +119,13 @@ class MasterViewController: UITableViewController {
         } else if editingStyle == .insert {
             // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view.
         }
+    }
+    
+    func showActivityIndicator()
+    {
+        let alphaView = UIView(frame: self.view.frame)
+        alphaView.backgroundColor = UIColor.init(white: 1.0, alpha: 1.0)
+        self.view.window?.addSubview(alphaView)
     }
 
 
