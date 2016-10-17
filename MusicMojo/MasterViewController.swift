@@ -289,6 +289,7 @@ class MasterViewController: UITableViewController,ItunesSearchManagerProtocol,UI
             searchController.searchBar.text = recentSearches[indexPath.row]
             self.itunesSearchManager = ItunesSearchManager()
             self.itunesSearchManager.delegate = self
+            recentSearchManager.addPrefernce(search: recentSearches[indexPath.row])
             showActivityIndicator()
             let _ = self.itunesSearchManager.fetchMusicListFromiTunes(param: recentSearches[indexPath.row])
             
