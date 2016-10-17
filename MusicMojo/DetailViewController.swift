@@ -11,7 +11,9 @@ import MusicMojoLyrica
 class DetailViewController: UIViewController,LyricsSearchManagerProtocol {
      // MARK: - Properties
     @IBOutlet weak var detailDescriptionLabel: UILabel!
+    @IBOutlet weak var trackName: UILabel!
     var lyrics:String = ""
+    var trackNameString:String = ""
     
     
      // MARK: - CofigureView
@@ -21,7 +23,11 @@ class DetailViewController: UIViewController,LyricsSearchManagerProtocol {
             if let label = self.detailDescriptionLabel {
                 label.text = self.lyrics
             }
+            if let track = self.trackName {
+                track.text = self.trackNameString
+            }
         }
+        
         
         
     }

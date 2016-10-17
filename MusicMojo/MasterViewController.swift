@@ -181,6 +181,7 @@ class MasterViewController: UITableViewController,ItunesSearchManagerProtocol,UI
                 let controller = (segue.destination as! UINavigationController).topViewController as! DetailViewController
                 let selectedSong = songs[indexPath.row]
                 controller.fetchLyrics(artist: selectedSong.artistName, song: selectedSong.trackName)
+                controller.trackNameString = selectedSong.trackName
                 controller.navigationItem.leftBarButtonItem = self.splitViewController?.displayModeButtonItem
                 controller.navigationItem.leftItemsSupplementBackButton = true
             }
