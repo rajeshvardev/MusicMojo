@@ -23,6 +23,9 @@ class MasterViewController: UITableViewController,ItunesSearchManagerProtocol,UI
     let searchController = UISearchController(searchResultsController: nil)
     var searchBarHeight:Int!
     var itunesSearchManager:ItunesSearchManager!
+    var recentSearchManager:RecentSearchManager = RecentSearchManager.sharedInstance
+    var recentSearches:[String]!
+    var searchBarActive:Bool = false
     
     // MARK: - ItunesSearchManagerProtocol delegate methods
     func getSongsWhenDataTaskCompleted(songs:[Song])
@@ -98,7 +101,7 @@ class MasterViewController: UITableViewController,ItunesSearchManagerProtocol,UI
         //self.tableView.tableHeaderView = searchController.searchBar
         searchController.delegate = self
         searchController.searchBar.delegate = self
-        
+        recentSearches = recentSearchManager.readPreference()
     }
     
     
@@ -140,17 +143,26 @@ class MasterViewController: UITableViewController,ItunesSearchManagerProtocol,UI
     
     public func searchBarSearchButtonClicked(_ searchBar: UISearchBar)
     {
+        searchBarActive = true
         self.itunesSearchManager = ItunesSearchManager()
         self.itunesSearchManager.delegate = self
         let _ = self.itunesSearchManager.fetchMusicListFromiTunes(param: searchBar.text!)
+        let recentManager = RecentSearchManager.sharedInstance
+        recentManager.addPrefernce(search: searchBar.text!)
 
     }
     
     public func searchBarCancelButtonClicked(_ searchBar: UISearchBar)
     {
-        
+        searchBarActive = false
+        searchController.isActive = false
+        self.tableView.reloadData()
     }
     // MARK: - Segues
+    
+    
+    
+    
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "showDetail" {
@@ -163,7 +175,9 @@ class MasterViewController: UITableViewController,ItunesSearchManagerProtocol,UI
                 controller.navigationItem.leftItemsSupplementBackButton = true
             }
         }
+        
     }
+    
     
     // MARK: - Table View
     
@@ -172,11 +186,30 @@ class MasterViewController: UITableViewController,ItunesSearchManagerProtocol,UI
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        
-        return songs.count
+        if !searchBarActive
+        {
+            recentSearches = recentSearchManager.readPreference()
+            return recentSearches.count
+        }
+        else
+        {
+            return songs.count
+        }
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
+        if !searchBarActive
+        {
+            let cell = tableView.dequeueReusableCell(withIdentifier: "Cell2", for: indexPath)
+            let recent = cell.viewWithTag(81) as! UILabel
+            recentSearches = recentSearchManager.readPreference()
+            recent.text = recentSearches[indexPath.row]
+            return cell
+        }
+        else
+        {
+        
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
         print(indexPath.row)
         let song = songs[indexPath.row]
@@ -199,6 +232,7 @@ class MasterViewController: UITableViewController,ItunesSearchManagerProtocol,UI
         let album = cell.viewWithTag(93) as! UILabel
         album.text = song.collectionName
         return cell
+        }
     }
     
     override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
@@ -214,6 +248,43 @@ class MasterViewController: UITableViewController,ItunesSearchManagerProtocol,UI
             // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view.
         }
     }
+    
+    
+    public override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView?
+    {
+        let view = UIView(frame: CGRect(x: 10, y: 5, width: self.tableView.frame.width, height: 20))
+        let label = UILabel(frame: view.frame)
+        label.font = UIFont(name: "Arial-BoldMT", size: 16)
+        if !searchBarActive
+        {
+            label.text = "Recent Searches"
+        }
+        else
+        {
+            label.text = "Songs"
+        }
+        view.addSubview(label)
+        return view
+    }
+    
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if !searchController.isActive
+        {
+        
+        if let indexPath = self.tableView.indexPathForSelectedRow {
+            self.itunesSearchManager = ItunesSearchManager()
+            self.itunesSearchManager.delegate = self
+            let _ = self.itunesSearchManager.fetchMusicListFromiTunes(param: recentSearches[indexPath.row])
+            searchController.isActive = true
+            self.tableView.reloadData()
+            setupHeaderView()
+            showHideSearchBarHeader(hide:true)
+            searchBarActive = true
+            searchController.searchBar.text = recentSearches[indexPath.row]
+        }
+        }
+    }
+    
     
      // MARK: - Activity Indicator
     func showActivityIndicator()
