@@ -7,7 +7,7 @@
 //
 
 import UIKit
-import iTunesSearch
+import MusicMojoLyrica
 class DetailViewController: UIViewController,LyricsSearchManagerProtocol {
      // MARK: - Properties
     @IBOutlet weak var detailDescriptionLabel: UILabel!
@@ -30,7 +30,9 @@ class DetailViewController: UIViewController,LyricsSearchManagerProtocol {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+        
         self.configureView()
+        self.navigationController?.title = Utils.getLocalisedString(key: "Lyrics")
     }
     
     override func didReceiveMemoryWarning() {
@@ -63,7 +65,9 @@ class DetailViewController: UIViewController,LyricsSearchManagerProtocol {
     }
     func lyricsError(error:Error)
     {
-        
+        print(error.localizedDescription)
+        self.lyrics = "No lyrics found"
+        self.configureView()
     }
     
     

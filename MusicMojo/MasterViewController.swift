@@ -7,7 +7,7 @@
 //
 
 import UIKit
-import iTunesSearch
+import MusicMojoLyrica
 
 class MasterViewController: UITableViewController,ItunesSearchManagerProtocol,UISearchControllerDelegate ,UISearchBarDelegate{
     
@@ -25,7 +25,13 @@ class MasterViewController: UITableViewController,ItunesSearchManagerProtocol,UI
     var itunesSearchManager:ItunesSearchManager!
     var recentSearchManager:RecentSearchManager = RecentSearchManager.sharedInstance
     var recentSearches:[String]!
+    //the property introduces ,as the the searchcontroller isActive is set as soon as you clicked ,
+    //hence has issues when the cells are pulled up when search bar becomes active
     var searchBarActive:Bool = false
+    var acitivityIndicator:UIActivityIndicatorView!
+    
+    
+    
     
     // MARK: - ItunesSearchManagerProtocol delegate methods
     func getSongsWhenDataTaskCompleted(songs:[Song])
@@ -34,14 +40,16 @@ class MasterViewController: UITableViewController,ItunesSearchManagerProtocol,UI
         self.songs = songs
         //moved to main queue execution
         DispatchQueue.main.async {
+            self.searchBarActive = true
             self.tableView.reloadData()
         }
-        
+        removeActivityIndicator()
     }
     
     func getSongDataTaskError(error:NSError)
     {
         print(error.localizedDescription)
+        removeActivityIndicator()
     }
     
     
@@ -51,14 +59,14 @@ class MasterViewController: UITableViewController,ItunesSearchManagerProtocol,UI
     {
         self.tableView.tableHeaderView = UIView(frame: CGRect(x: 0, y: 0, width: Int(searchController.searchBar.frame.width) , height: (Int(searchController.searchBar.frame.height) + searchBarHeaderHeight) ))
         let searchLabel = UILabel(frame: CGRect(x: searchBarHeaderX, y: 0, width: Int(searchController.searchBar.frame.width), height: searchBarHeaderHeight))
-        searchLabel.text = "Search"
+        searchLabel.text = Utils.getLocalisedString(key: "Search")
         searchLabel.font = UIFont(name: "Arial-BoldMT", size: 30)
         searchBarHeight = Int(searchController.searchBar.frame.height)
         searchController.searchBar.frame = CGRect(x: 0, y: searchBarHeaderHeight, width: Int(searchController.searchBar.frame.width), height: Int(searchController.searchBar.frame.height))
         //change the place holder alignment to left
         definesPresentationContext = true
         searchController.dimsBackgroundDuringPresentation = false
-        searchController.searchBar.placeholder = "Search Itunes Library"
+        searchController.searchBar.placeholder = Utils.getLocalisedString(key: "Search Itunes Library")
        self.tableView.tableHeaderView?.insertSubview(searchLabel, at: 0)
         self.tableView.tableHeaderView?.insertSubview(searchController.searchBar, at: 1)
     }
@@ -97,6 +105,7 @@ class MasterViewController: UITableViewController,ItunesSearchManagerProtocol,UI
             let controllers = split.viewControllers
             self.detailViewController = (controllers[controllers.count-1] as! UINavigationController).topViewController as? DetailViewController
         }
+        self.navigationController?.title = Utils.getLocalisedString(key: "Music Mojo")
         setupHeaderView()
         //self.tableView.tableHeaderView = searchController.searchBar
         searchController.delegate = self
@@ -110,7 +119,7 @@ class MasterViewController: UITableViewController,ItunesSearchManagerProtocol,UI
     override func viewWillAppear(_ animated: Bool) {
         self.clearsSelectionOnViewWillAppear = self.splitViewController!.isCollapsed
         super.viewWillAppear(animated)
-        showActivityIndicator()
+        self.navigationController?.title = Utils.getLocalisedString(key: "Music Mojo")
     }
     
     override func didReceiveMemoryWarning() {
@@ -126,7 +135,7 @@ class MasterViewController: UITableViewController,ItunesSearchManagerProtocol,UI
     
     
     
-    //MARK:-
+    //MARK:- UISearchControllerDelegate
     
     public func searchBarTextDidBeginEditing(_ searchBar: UISearchBar)
     {
@@ -140,12 +149,13 @@ class MasterViewController: UITableViewController,ItunesSearchManagerProtocol,UI
         showHideSearchBarHeader(hide:false)
     }
     
-    
+    //MARK:- UISearchBarDelegate
     public func searchBarSearchButtonClicked(_ searchBar: UISearchBar)
     {
         searchBarActive = true
         self.itunesSearchManager = ItunesSearchManager()
         self.itunesSearchManager.delegate = self
+        showActivityIndicator()
         let _ = self.itunesSearchManager.fetchMusicListFromiTunes(param: searchBar.text!)
         let recentManager = RecentSearchManager.sharedInstance
         recentManager.addPrefernce(search: searchBar.text!)
@@ -155,8 +165,8 @@ class MasterViewController: UITableViewController,ItunesSearchManagerProtocol,UI
     public func searchBarCancelButtonClicked(_ searchBar: UISearchBar)
     {
         searchBarActive = false
-        searchController.isActive = false
         self.tableView.reloadData()
+        showHideSearchBarHeader(hide:false)
     }
     // MARK: - Segues
     
@@ -180,7 +190,7 @@ class MasterViewController: UITableViewController,ItunesSearchManagerProtocol,UI
     
     
     // MARK: - Table View
-    
+    //TODO customize row height for recent search and songs
     override func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
@@ -257,11 +267,11 @@ class MasterViewController: UITableViewController,ItunesSearchManagerProtocol,UI
         label.font = UIFont(name: "Arial-BoldMT", size: 16)
         if !searchBarActive
         {
-            label.text = "Recent Searches"
+            label.text = Utils.getLocalisedString(key: "Recent Searches")
         }
         else
         {
-            label.text = "Songs"
+            label.text = Utils.getLocalisedString(key: "Songs")
         }
         view.addSubview(label)
         return view
@@ -272,26 +282,35 @@ class MasterViewController: UITableViewController,ItunesSearchManagerProtocol,UI
         {
         
         if let indexPath = self.tableView.indexPathForSelectedRow {
-            self.itunesSearchManager = ItunesSearchManager()
-            self.itunesSearchManager.delegate = self
-            let _ = self.itunesSearchManager.fetchMusicListFromiTunes(param: recentSearches[indexPath.row])
             searchController.isActive = true
-            self.tableView.reloadData()
             setupHeaderView()
             showHideSearchBarHeader(hide:true)
-            searchBarActive = true
             searchController.searchBar.text = recentSearches[indexPath.row]
+            self.itunesSearchManager = ItunesSearchManager()
+            self.itunesSearchManager.delegate = self
+            showActivityIndicator()
+            let _ = self.itunesSearchManager.fetchMusicListFromiTunes(param: recentSearches[indexPath.row])
+            
+            
         }
         }
     }
     
     
-     // MARK: - Activity Indicator
+    // MARK: - Activity Indicator
     func showActivityIndicator()
     {
-        let alphaView = UIView(frame: self.view.frame)
-        alphaView.backgroundColor = UIColor.init(white: 1.0, alpha: 1.0)
-        self.view.window?.addSubview(alphaView)
+        //TODO - Set up a activity indicator with music note symbols animation
+        acitivityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .gray)
+        acitivityIndicator.center = self.view.center
+        acitivityIndicator.startAnimating()
+        self.view.addSubview(acitivityIndicator)
+        
+    }
+    
+    func removeActivityIndicator()
+    {
+        acitivityIndicator?.removeFromSuperview()
     }
     
     

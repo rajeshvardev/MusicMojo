@@ -37,8 +37,7 @@
                         <subviews>
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ZgL-06-Gmf">
                                 <subviews>
-                                    <label clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" misplaced="YES" text="Detail view content goes here" textAlignment="justified" lineBreakMode="wordWrap" numberOfLines="200" minimumFontSize="10" translatesAutoresizingMaskIntoConstraints="NO" id="0XM-y9-sOw">
-                                        <rect key="frame" x="0.0" y="-64" width="358" height="575"/>
+                                    <label clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" text="Detail view content goes here" textAlignment="justified" lineBreakMode="wordWrap" numberOfLines="200" minimumFontSize="10" translatesAutoresizingMaskIntoConstraints="NO" id="0XM-y9-sOw">
                                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="23"/>
                                         <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
@@ -46,25 +45,24 @@
                                     </label>
                                 </subviews>
                                 <constraints>
-                                    <constraint firstItem="0XM-y9-sOw" firstAttribute="top" secondItem="ZgL-06-Gmf" secondAttribute="top" id="AZq-A6-mQP"/>
-                                    <constraint firstItem="0XM-y9-sOw" firstAttribute="leading" secondItem="ZgL-06-Gmf" secondAttribute="leading" id="TiW-2j-pTR"/>
-                                    <constraint firstItem="0XM-y9-sOw" firstAttribute="centerX" secondItem="ZgL-06-Gmf" secondAttribute="centerX" id="XPE-ba-m9I"/>
-                                    <constraint firstAttribute="trailing" secondItem="0XM-y9-sOw" secondAttribute="trailing" id="YO6-uF-UdX"/>
-                                    <constraint firstItem="0XM-y9-sOw" firstAttribute="centerY" secondItem="ZgL-06-Gmf" secondAttribute="centerY" id="xDB-8V-m5v"/>
-                                    <constraint firstAttribute="bottom" secondItem="0XM-y9-sOw" secondAttribute="bottom" id="xH3-Wv-HL6"/>
+                                    <constraint firstItem="0XM-y9-sOw" firstAttribute="centerX" secondItem="ZgL-06-Gmf" secondAttribute="centerX" id="LYD-af-1GJ"/>
+                                    <constraint firstAttribute="bottom" secondItem="0XM-y9-sOw" secondAttribute="bottom" constant="465" id="dHr-FE-vpZ"/>
+                                    <constraint firstItem="0XM-y9-sOw" firstAttribute="leading" secondItem="ZgL-06-Gmf" secondAttribute="leading" constant="16" id="hLD-U3-Vy2"/>
+                                    <constraint firstAttribute="trailing" secondItem="0XM-y9-sOw" secondAttribute="trailing" constant="15" id="iBp-mr-jmC"/>
+                                    <constraint firstItem="0XM-y9-sOw" firstAttribute="top" secondItem="ZgL-06-Gmf" secondAttribute="top" constant="20" id="lqZ-xu-RWa"/>
                                 </constraints>
                             </scrollView>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstItem="ZgL-06-Gmf" firstAttribute="top" secondItem="SYR-Wa-9uf" secondAttribute="bottom" constant="8" symbolic="YES" id="NH9-JS-GcQ"/>
-                            <constraint firstItem="ZgL-06-Gmf" firstAttribute="leading" secondItem="svH-Pt-448" secondAttribute="leadingMargin" constant="-8" id="NMq-1z-GM5"/>
-                            <constraint firstItem="ZgL-06-Gmf" firstAttribute="centerX" secondItem="svH-Pt-448" secondAttribute="centerX" id="vDG-Va-9gJ"/>
-                            <constraint firstAttribute="bottom" secondItem="ZgL-06-Gmf" secondAttribute="bottom" constant="20" symbolic="YES" id="yVN-CX-Tr2"/>
+                            <constraint firstItem="ZgL-06-Gmf" firstAttribute="centerX" secondItem="svH-Pt-448" secondAttribute="centerX" id="59T-hB-SOY"/>
+                            <constraint firstItem="ZgL-06-Gmf" firstAttribute="top" secondItem="SYR-Wa-9uf" secondAttribute="bottom" constant="8" symbolic="YES" id="7cf-cI-GhC"/>
+                            <constraint firstItem="ZgL-06-Gmf" firstAttribute="leading" secondItem="svH-Pt-448" secondAttribute="leadingMargin" constant="-8" id="qEz-Xd-5fW"/>
+                            <constraint firstAttribute="bottom" secondItem="ZgL-06-Gmf" secondAttribute="bottom" constant="20" symbolic="YES" id="taC-K6-yt4"/>
                         </constraints>
                     </view>
                     <toolbarItems/>
-                    <navigationItem key="navigationItem" title="Detail" id="mOI-FS-AaM"/>
+                    <navigationItem key="navigationItem" title="Lyrics" id="mOI-FS-AaM"/>
                     <connections>
                         <outlet property="detailDescriptionLabel" destination="0XM-y9-sOw" id="deQ-Na-JPF"/>
                     </connections>
@@ -91,7 +89,7 @@
         <scene sceneID="smW-Zh-WAh">
             <objects>
                 <tableViewController title="Master" clearsSelectionOnViewWillAppear="NO" id="7bK-jq-Zjz" customClass="MasterViewController" customModule="MusicMojo" customModuleProvider="target" sceneMemberID="viewController">
-                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="73" sectionHeaderHeight="22" sectionFooterHeight="22" id="r7i-6Z-zg0">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="73" sectionHeaderHeight="22" sectionFooterHeight="22" id="r7i-6Z-zg0">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -100,7 +98,7 @@
                                 <rect key="frame" x="0.0" y="86" width="375" height="73"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="WCw-Qf-5nD" id="37f-cq-3Eg">
-                                    <frame key="frameInset" width="342" height="72.5"/>
+                                    <frame key="frameInset" width="342" height="73"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <imageView userInteractionEnabled="NO" tag="90" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Eui-g6-bTR" userLabel="art">
@@ -139,11 +137,11 @@
                                 <rect key="frame" x="0.0" y="159" width="375" height="45"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="YbT-Td-roX" id="Cjf-jJ-T4N">
-                                    <frame key="frameInset" width="375" height="44"/>
+                                    <frame key="frameInset" width="375" height="45"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" tag="81" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Y2P-rs-Ilt" userLabel="track">
-                                            <frame key="frameInset" minX="15" minY="8" width="312" height="21"/>
+                                            <frame key="frameInset" minX="15" minY="8" width="312" height="37"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="23"/>
                                             <nil key="textColor"/>

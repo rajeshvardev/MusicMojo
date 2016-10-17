@@ -24,6 +24,10 @@ class MusicMojoTests: XCTestCase {
     func testExample() {
         // This is an example of a functional test case.
         // Use XCTAssert and related functions to verify your tests produce the correct results.
+        let localSt = Utils.getLocalisedString(key: "Search")
+        XCTAssertEqual(localSt, "Search")
+        let localSt2 = Utils.getLocalisedString(key: "XYZ")
+        XCTAssertEqual(localSt2, "XYZ")
     }
     
     func testPerformanceExample() {

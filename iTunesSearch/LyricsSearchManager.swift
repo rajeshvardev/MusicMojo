@@ -73,7 +73,7 @@ public class LyricsSearchManager: NSObject {
                          var  lyricsString = nodes.first?.text!
                          //for some reason the above block is giving text with escape chars
                          */
-                        
+                        // there is an issue of text formatting
                         for element in nodes {
                             let lyricsString = element.text!
                             print("==================================================================================================================================================================================================")
