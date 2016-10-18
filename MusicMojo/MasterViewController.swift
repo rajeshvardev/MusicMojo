@@ -42,11 +42,12 @@ class MasterViewController: UITableViewController,ItunesSearchManagerProtocol,UI
         DispatchQueue.main.async {
             self.searchBarActive = true
             self.tableView.reloadData()
+            self.scrollToTop()
         }
         removeActivityIndicator()
     }
     
-    func getSongDataTaskError(error:NSError)
+    func getSongDataTaskError(error:Error)
     {
         print(error.localizedDescription)
         removeActivityIndicator()
@@ -67,7 +68,7 @@ class MasterViewController: UITableViewController,ItunesSearchManagerProtocol,UI
         definesPresentationContext = true
         searchController.dimsBackgroundDuringPresentation = false
         searchController.searchBar.placeholder = Utils.getLocalisedString(key: "Search Itunes Library")
-       self.tableView.tableHeaderView?.insertSubview(searchLabel, at: 0)
+        self.tableView.tableHeaderView?.insertSubview(searchLabel, at: 0)
         self.tableView.tableHeaderView?.insertSubview(searchController.searchBar, at: 1)
     }
     
@@ -88,19 +89,19 @@ class MasterViewController: UITableViewController,ItunesSearchManagerProtocol,UI
                 self.tableView.tableHeaderView?.subviews[1].frame = CGRect(x: 0, y: MasterViewController.searchBarHeaderHeight, width: Int(self.searchController.searchBar.frame.width), height: self.searchBarHeight)
             })
             
-
+            
         }
         
     }
-        
-        
-        
+    
+    
+    
     // MARK: - View Setup
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
-       
+        
         if let split = self.splitViewController {
             let controllers = split.viewControllers
             self.detailViewController = (controllers[controllers.count-1] as! UINavigationController).topViewController as? DetailViewController
@@ -156,10 +157,17 @@ class MasterViewController: UITableViewController,ItunesSearchManagerProtocol,UI
         self.itunesSearchManager = ItunesSearchManager()
         self.itunesSearchManager.delegate = self
         showActivityIndicator()
-        let _ = self.itunesSearchManager.fetchMusicListFromiTunes(param: searchBar.text!)
-        let recentManager = RecentSearchManager.sharedInstance
-        recentManager.addPrefernce(search: searchBar.text!)
-
+        let task = self.itunesSearchManager.fetchMusicListFromiTunes(param: searchBar.text!)
+        if task == nil
+        {
+            Utils.showErrorAlert(controller: self)
+        }
+        else
+        {
+            let recentManager = RecentSearchManager.sharedInstance
+            recentManager.addPrefernce(search: searchBar.text!)
+        }
+        
     }
     
     public func searchBarCancelButtonClicked(_ searchBar: UISearchBar)
@@ -167,6 +175,7 @@ class MasterViewController: UITableViewController,ItunesSearchManagerProtocol,UI
         searchBarActive = false
         self.tableView.reloadData()
         showHideSearchBarHeader(hide:false)
+        self.scrollToTop()
     }
     // MARK: - Segues
     
@@ -220,29 +229,29 @@ class MasterViewController: UITableViewController,ItunesSearchManagerProtocol,UI
         }
         else
         {
-        
-        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
-        print(indexPath.row)
-        let song = songs[indexPath.row]
-        let art = cell.viewWithTag(90) as! UIImageView
-         DispatchQueue.global(qos: .background).async {
-        do {
-            let image  = try  UIImage(data: NSData(contentsOf: URL(string: song.artworkUrl60)!) as Data)
-            DispatchQueue.main.async {
-                art.image = image
-            }
             
-        } catch  {
-            print("error")
-        }
-        }
-        let track = cell.viewWithTag(91) as! UILabel
-        track.text = song.trackName
-        let artist = cell.viewWithTag(92) as! UILabel
-        artist.text = song.artistName
-        let album = cell.viewWithTag(93) as! UILabel
-        album.text = song.collectionName
-        return cell
+            let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
+            print(indexPath.row)
+            let song = songs[indexPath.row]
+            let art = cell.viewWithTag(90) as! UIImageView
+            DispatchQueue.global(qos: .background).async {
+                do {
+                    let image  = try  UIImage(data: NSData(contentsOf: URL(string: song.artworkUrl60)!) as Data)
+                    DispatchQueue.main.async {
+                        art.image = image
+                    }
+                    
+                } catch  {
+                    print("error")
+                }
+            }
+            let track = cell.viewWithTag(91) as! UILabel
+            track.text = song.trackName
+            let artist = cell.viewWithTag(92) as! UILabel
+            artist.text = song.artistName
+            let album = cell.viewWithTag(93) as! UILabel
+            album.text = song.collectionName
+            return cell
         }
     }
     
@@ -279,22 +288,28 @@ class MasterViewController: UITableViewController,ItunesSearchManagerProtocol,UI
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if !searchController.isActive
+        if tableView.cellForRow(at: indexPath)?.reuseIdentifier == "Cell2"
         {
-        
-        if let indexPath = self.tableView.indexPathForSelectedRow {
-            searchController.isActive = true
-            setupHeaderView()
-            showHideSearchBarHeader(hide:true)
-            searchController.searchBar.text = recentSearches[indexPath.row]
-            self.itunesSearchManager = ItunesSearchManager()
-            self.itunesSearchManager.delegate = self
-            recentSearchManager.addPrefernce(search: recentSearches[indexPath.row])
-            showActivityIndicator()
-            let _ = self.itunesSearchManager.fetchMusicListFromiTunes(param: recentSearches[indexPath.row])
             
-            
-        }
+            if let indexPath = self.tableView.indexPathForSelectedRow {
+                searchController.isActive = true
+                //setupHeaderView()
+                showHideSearchBarHeader(hide:true)
+                searchController.searchBar.text = recentSearches[indexPath.row]
+                self.itunesSearchManager = ItunesSearchManager()
+                self.itunesSearchManager.delegate = self
+                showActivityIndicator()
+                let task = self.itunesSearchManager.fetchMusicListFromiTunes(param: recentSearches[indexPath.row])
+                if task == nil
+                {
+                    Utils.showErrorAlert(controller: self)
+                }
+                else
+                {
+                    recentSearchManager.addPrefernce(search: recentSearches[indexPath.row])
+                }
+                
+            }
         }
     }
     
@@ -315,6 +330,18 @@ class MasterViewController: UITableViewController,ItunesSearchManagerProtocol,UI
         acitivityIndicator?.removeFromSuperview()
     }
     
+    // MARK: - Some Uitility
+    func scrollToTop()
+    {
+        if searchBarActive
+        {
+            self.tableView.setContentOffset(CGPoint(x:0,y:0), animated: true)
+        }
+        else
+        {
+            self.tableView.setContentOffset(CGPoint(x:0,y:-15), animated: true)
+        }
+    }
     
 }
 

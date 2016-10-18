@@ -9,14 +9,14 @@
 import UIKit
 import MusicMojoLyrica
 class DetailViewController: UIViewController,LyricsSearchManagerProtocol {
-     // MARK: - Properties
+    // MARK: - Properties
     @IBOutlet weak var detailDescriptionLabel: UILabel!
     @IBOutlet weak var trackName: UILabel!
     var lyrics:String = ""
     var trackNameString:String = ""
     
     
-     // MARK: - CofigureView
+    // MARK: - CofigureView
     func configureView() {
         // Update the user interface for the detail item.
         DispatchQueue.main.async {
@@ -32,7 +32,7 @@ class DetailViewController: UIViewController,LyricsSearchManagerProtocol {
         
     }
     
-     // MARK: - View Setup
+    // MARK: - View Setup
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
@@ -54,12 +54,16 @@ class DetailViewController: UIViewController,LyricsSearchManagerProtocol {
     }
     
     
-     // MARK: - LyricsSearchManager
+    // MARK: - LyricsSearchManager
     func fetchLyrics(artist:String,song:String)
     {
         let lyrics = LyricsSearchManager()
         lyrics.delegate = self
-        let _ = lyrics.fetchLyricsForTrack(artist: artist, song: song)
+        let task = lyrics.fetchLyricsForTrack(artist: artist, song: song)
+        if task == nil
+        {
+            Utils.showErrorAlert(controller: self)
+        }
     }
     
     // MARK: - LyricsSearchManagerProtocol delegate methods
