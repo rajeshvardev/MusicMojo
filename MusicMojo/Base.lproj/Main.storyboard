@@ -109,9 +109,15 @@
                                     <frame key="frameInset" width="342" height="73"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
-                                        <imageView userInteractionEnabled="NO" tag="90" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Eui-g6-bTR" userLabel="art">
+                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" tag="90" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Eui-g6-bTR" userLabel="art">
                                             <frame key="frameInset" minX="12" minY="6" width="60" height="60"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <userDefinedRuntimeAttributes>
+                                                <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                                    <integer key="value" value="10"/>
+                                                </userDefinedRuntimeAttribute>
+                                                <userDefinedRuntimeAttribute type="boolean" keyPath="keyPath" value="YES"/>
+                                            </userDefinedRuntimeAttributes>
                                         </imageView>
                                         <label opaque="NO" userInteractionEnabled="NO" tag="91" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="9df-Nq-2Vb" userLabel="track">
                                             <frame key="frameInset" minX="80" minY="8" width="247" height="21"/>
