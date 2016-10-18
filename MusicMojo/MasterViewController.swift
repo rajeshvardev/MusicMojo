@@ -32,7 +32,6 @@ class MasterViewController: UITableViewController,ItunesSearchManagerProtocol,UI
     
     
     
-    
     // MARK: - ItunesSearchManagerProtocol delegate methods
     func getSongsWhenDataTaskCompleted(songs:[Song])
     {
@@ -112,6 +111,7 @@ class MasterViewController: UITableViewController,ItunesSearchManagerProtocol,UI
         searchController.delegate = self
         searchController.searchBar.delegate = self
         recentSearches = recentSearchManager.readPreference()
+        self.tableView.sectionHeaderHeight = 20.0
     }
     
     
@@ -164,8 +164,7 @@ class MasterViewController: UITableViewController,ItunesSearchManagerProtocol,UI
         }
         else
         {
-            let recentManager = RecentSearchManager.sharedInstance
-            recentManager.addPrefernce(search: searchBar.text!)
+            recentSearchManager.addPrefernce(search: searchBar.text!)
         }
         
     }
